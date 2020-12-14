@@ -25,11 +25,20 @@ def image_processing():
         prev_column = stacked_vector
 
     average_face = average_face / m
+
     # Display Average face
     plt.imshow(average_face.reshape((100, 100)))
     plt.title("average face")
-
     # plt.imshow(stacked_vector[:, 0].reshape((100, 100)))
-    return stacked_vector, average_face
 
+    # mean normalization
+    normalized_vec = stacked_vector - average_face
+    return normalized_vec
+
+
+def covariance():
+    norm_x = image_processing()
+    m = norm_x.shape[1]
+    covariance_mat = np.dot(norm_x, norm_x.T) / m
+    return covariance_mat
 
