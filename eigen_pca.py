@@ -45,7 +45,13 @@ def covariance():
 
 
 def eigen_value():
-    return np.linalg.eig(covariance())
+    eig_value, eig_vec = np.linalg.eig(covariance())
+    norm_x = image_processing()
+    # ui= A*vi(eigen vector relation between A.T*A and A*A.T
+    eig_ui = np.dot(norm_x, eig_vec)
+    return eig_value, eig_ui
 
 
 eig_value, eig_vec = eigen_value()
+plt.imshow(eig_vec[:, 0].reshape((100, 100)))
+
