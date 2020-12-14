@@ -27,8 +27,9 @@ def image_processing():
     average_face = average_face / m
 
     # Display Average face
-    plt.imshow(average_face.reshape((100, 100)))
-    plt.title("average face")
+    # plt.imshow(average_face.reshape((100, 100)))
+    # plt.title("average face")
+    # check is the operations till now are properly done
     # plt.imshow(stacked_vector[:, 0].reshape((100, 100)))
 
     # mean normalization
@@ -39,6 +40,12 @@ def image_processing():
 def covariance():
     norm_x = image_processing()
     m = norm_x.shape[1]
-    covariance_mat = np.dot(norm_x, norm_x.T) / m
+    covariance_mat = np.dot(norm_x.T, norm_x) / m - 1
     return covariance_mat
 
+
+def eigen_value():
+    return np.linalg.eig(covariance())
+
+
+eig_value, eig_vec = eigen_value()
