@@ -28,49 +28,69 @@ class Eigen:
                 break
             stacked_vector = np.column_stack((prev_column, column_vectors[count + 1]))
             prev_column = stacked_vector
-        self.display_data(stacked_vector)
-        average_face = np.sum(stacked_vector, axis=1) / self.m
+        # Display faces
+        # self.display_data(stacked_vector,'original image')
+
+        average_face = np.mean(stacked_vector, axis=1)
         self.mean_face = average_face.reshape(10000, 1)
         # Display Average face
-        plt.imshow(average_face.reshape((100, 100)))
-        plt.title("average face")
+        # plt.imshow(average_face.reshape((100, 100)))
+        # plt.show()
+
         # mean normalization
         self.norm_x = stacked_vector - self.mean_face
-        return self.norm_x, self.mean_face
+        return stacked_vector
 
-    def display_data(self, data):
-        nrows = 10
-        ncols = 10
+    def display_data(self, data, title):
+        nrows = 12
+        ncols = 12
         figure, axes = plt.subplots(nrows, ncols)
-        k = -2
+        k = 0
         for i in range(nrows):
             for j in range(ncols):
                 axes[i, j].imshow(data[:, k].reshape((100, 100)))
-                k += -1
+                k += 1
+        plt.title(title, loc='left')
         plt.show()
 
     def covariance(self):
-        covariance_mat = np.dot(self.norm_x, self.norm_x.T) / m - 1
+        covariance_mat = np.dot(self.norm_x.T, self.norm_x) / self.m - 1
         return covariance_mat
 
     def eigen_value(self):
         eig_value, eig_vec = np.linalg.eig(self.covariance())
         # Convert lower dimension eigen vector to original dimension ui= A*vi(eigen vector relation between A.T*A and A*A.T)
         eig_face = np.dot(self.norm_x, eig_vec)
+        # Normalize eigenvectors
+        eig_face = eig_face / np.linalg.norm(eig_face, axis=0)
+        # self.display_data(eig_face, 'Eigenface')
         return eig_value, eig_face
 
     def weights_calculation(self):
-        eig_value, eig_face = self.eigen_value
-        w = np.dot(eig_face.T, self.norm_x)
-        reconstruction = np.dot(eig_face, w)
-        re_mean = reconstruction + self.mean_face
-        self.display_data(re_mean)
+        _, eig_face = self.eigen_value()
+        eig_face = eig_face[:, :25]
+        weights = np.dot(self.norm_x.T, eig_face)
+        reconstruction = self.mean_face+np.dot(eig_face, weights.T)
+        self.display_data(reconstruction, 'reconstructed face')
+        return weights, reconstruction
 
     def test(self):
+        _, eig_face = self.eigen_value()
+        eig_face = eig_face[:, :25]
         test_image = img.imread('./1.jpg')
         test_image = test_image.reshape(-1, 1)
         test_image = test_image - self.mean_face
+        w = np.dot(test_image.T, eig_face)
+        recon = self.mean_face + np.dot(eig_face, w.T)
+        # plt.imshow(recon.reshape((100, 100)))
+        return w,recon
+
+
+
 
 
 a = Eigen('./cropped_image')
-norm_x,mean = a.image_processing()
+stacked=a.image_processing()
+eigen_value,eigen_vectors = a.eigen_value()
+weights,recons= a.weights_calculation()
+test_w,recon = a.test()

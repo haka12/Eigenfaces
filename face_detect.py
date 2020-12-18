@@ -9,7 +9,8 @@ class face_detect:
         self.imsize = 100
 
     def face_return(self):
-        os.makedirs('./cropped_image')
+        if not os.path.isdir('./cropped_image'):
+            os.makedirs('./cropped_image')
         for subdirs,_, files in os.walk(self.path):
             for file in files:
                 image_path = subdirs + os.sep + file
