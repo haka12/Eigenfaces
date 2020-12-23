@@ -10,8 +10,8 @@ class Eigen:
         self.path = path
         self.m = len(os.listdir(self.path))
         self.imsize = 100
-        self.norm_x = np.zeros((self.imsize*self.imsize, self.m))
-        self.mean_face = np.zeros((self.imsize*self.imsize, 1))
+        self.norm_x = np.zeros((self.imsize * self.imsize, self.m))
+        self.mean_face = np.zeros((self.imsize * self.imsize, 1))
 
     def image_processing(self):
         # Loading images in a list
@@ -41,18 +41,6 @@ class Eigen:
         self.norm_x = stacked_vector - self.mean_face
         return stacked_vector
 
-    def display_data(self, data, title):
-        nrows = 12
-        ncols = 12
-        figure, axes = plt.subplots(nrows, ncols)
-        k = 0
-        for i in range(nrows):
-            for j in range(ncols):
-                axes[i, j].imshow(data[:, k].reshape((100, 100)))
-                k += 1
-        plt.title(title, loc='left')
-        plt.show()
-
     def covariance(self):
         covariance_mat = np.dot(self.norm_x.T, self.norm_x) / self.m - 1
         return covariance_mat
@@ -68,29 +56,46 @@ class Eigen:
 
     def weights_calculation(self):
         _, eig_face = self.eigen_value()
-        eig_face = eig_face[:, :25]
+        # Using only 20 Eigenfaces as Principal Component
+        eig_face = eig_face[:, :20]
         weights = np.dot(self.norm_x.T, eig_face)
-        reconstruction = self.mean_face+np.dot(eig_face, weights.T)
-        self.display_data(reconstruction, 'reconstructed face')
+        reconstruction = self.mean_face + np.dot(eig_face, weights.T)
+        # self.display_data(reconstruction, 'reconstructed face')
         return weights, reconstruction
+
+    @staticmethod
+    def display_data(data, title):
+        nrows = 12
+        ncols = 12
+        figure, axes = plt.subplots(nrows, ncols)
+        k = 0
+        for i in range(nrows):
+            for j in range(ncols):
+                axes[i, j].imshow(data[:, k].reshape((100, 100)))
+                k += 1
+        plt.title(title, loc='left')
+        plt.show()
 
     def test(self):
         _, eig_face = self.eigen_value()
-        eig_face = eig_face[:, :25]
-        test_image = img.imread('./1.jpg')
+        eig_face = eig_face[:, :20]
+        test_image = img.imread('./ana15.jpg')
         test_image = test_image.reshape(-1, 1)
-        test_image = test_image - self.mean_face
-        w = np.dot(test_image.T, eig_face)
-        recon = self.mean_face + np.dot(eig_face, w.T)
-        # plt.imshow(recon.reshape((100, 100)))
-        return w,recon
+        norm_test = test_image - self.mean_face
+        w = np.dot(norm_test.T, eig_face)
+        proj_test = np.dot(eig_face, w.T)
+        recon = self.mean_face + proj_test
+        plt.imshow(recon.reshape((100, 100)))
+        return w, recon
 
-
-
-
-
-a = Eigen('./cropped_image')
-stacked=a.image_processing()
-eigen_value,eigen_vectors = a.eigen_value()
-weights,recons= a.weights_calculation()
-test_w,recon = a.test()
+# a = Eigen('./cropped_image')
+# stacked = a.image_processing()
+# eigen_value, eigen_vectors = a.eigen_value()
+# weights, recons = a.weights_calculation()
+# w, recon = a.test()
+#
+# dict_norm = {i: np.linalg.norm(abs(weights[i, :] - w)) for i in range(145)}
+# temp = min(dict_norm.values())
+# k_temp = [key for key in dict_norm if dict_norm[key] == temp]
+# key = k_temp[0]
+# plt.imshow(stacked[:,key].reshape(100, 100))
