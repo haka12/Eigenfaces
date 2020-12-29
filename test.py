@@ -5,5 +5,7 @@ import os
 
 
 class Test:
-    def __init__(self):
+    def __init__(self, weights):
+        self.weights = weights
+
         pass

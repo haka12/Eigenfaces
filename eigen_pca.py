@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as img
 import os
+from constants import *
 
 
 class Eigen:
@@ -47,7 +48,8 @@ class Eigen:
 
     def eigen_value(self):
         eig_value, eig_vec = np.linalg.eig(self.covariance())
-        # Convert lower dimension eigen vector to original dimension ui= A*vi(eigen vector relation between A.T*A and A*A.T)
+        # Convert lower dimension eigen vector to original dimension ui= A*vi(eigen vector relation between A.T*A and
+        # A*A.T)
         eig_face = np.dot(self.norm_x, eig_vec)
         # Normalize eigenvectors
         eig_face = eig_face / np.linalg.norm(eig_face, axis=0)
@@ -60,8 +62,8 @@ class Eigen:
         eig_face = eig_face[:, :20]
         weights = np.dot(self.norm_x.T, eig_face)
         reconstruction = self.mean_face + np.dot(eig_face, weights.T)
-        # self.display_data(reconstruction, 'reconstructed face')
-        return weights, reconstruction
+        self.display_data(reconstruction, 'reconstructed face')
+        return weights
 
     @staticmethod
     def display_data(data, title):
