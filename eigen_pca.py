@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as img
 import os
+import math
 from constants import *
 
 
@@ -16,7 +17,7 @@ class Eigen:
 
     def image_processing(self):
         # Loading images in a list
-        images = [img.imread('./cropped_image' + os.sep + files) for files in os.listdir('./cropped_image')]
+        images = [img.imread(self.path + os.sep + files) for files in os.listdir(self.path)]
         # plt.imshow(np.array(images[0]))
 
         # converting N*N to N^2
@@ -29,8 +30,6 @@ class Eigen:
                 break
             stacked_vector = np.column_stack((prev_column, column_vectors[count + 1]))
             prev_column = stacked_vector
-        # Display faces
-        # self.display_data(stacked_vector,'original image')
 
         average_face = np.mean(stacked_vector, axis=1)
         self.mean_face = average_face.reshape(10000, 1)
@@ -40,7 +39,7 @@ class Eigen:
 
         # mean normalization
         self.norm_x = stacked_vector - self.mean_face
-        return stacked_vector
+        return stacked_vector, self.mean_face
 
     def covariance(self):
         covariance_mat = np.dot(self.norm_x.T, self.norm_x) / self.m - 1
@@ -56,39 +55,22 @@ class Eigen:
         # self.display_data(eig_face, 'Eigenface')
         return eig_value, eig_face
 
-    def weights_calculation(self):
-        _, eig_face = self.eigen_value()
-        # Using only 20 Eigenfaces as Principal Component
-        eig_face = eig_face[:, :20]
+    def weights_calculation(self,eig_face,mean_face):
         weights = np.dot(self.norm_x.T, eig_face)
-        reconstruction = self.mean_face + np.dot(eig_face, weights.T)
-        self.display_data(reconstruction, 'reconstructed face')
-        return weights
+        reconstruction = mean_face + np.dot(eig_face, weights.T)
+        return weights,reconstruction
 
     @staticmethod
     def display_data(data, title):
-        nrows = 12
-        ncols = 12
-        figure, axes = plt.subplots(nrows, ncols)
+        shape = int(math.sqrt(data.shape[1]))
+        figure, axes = plt.subplots(shape, shape)
         k = 0
-        for i in range(nrows):
-            for j in range(ncols):
+        for i in range(shape):
+            for j in range(shape):
                 axes[i, j].imshow(data[:, k].reshape((100, 100)))
                 k += 1
         plt.title(title, loc='left')
         plt.show()
-
-    def test(self):
-        _, eig_face = self.eigen_value()
-        eig_face = eig_face[:, :20]
-        test_image = img.imread('./ana15.jpg')
-        test_image = test_image.reshape(-1, 1)
-        norm_test = test_image - self.mean_face
-        w = np.dot(norm_test.T, eig_face)
-        proj_test = np.dot(eig_face, w.T)
-        recon = self.mean_face + proj_test
-        plt.imshow(recon.reshape((100, 100)))
-        return w, recon
 
 # a = Eigen('./cropped_image')
 # stacked = a.image_processing()
