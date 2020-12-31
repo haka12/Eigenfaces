@@ -34,15 +34,14 @@ def main():
     print("Training finished, testing ......")
 
     test_set = Eigen(testing_set)
-    test_stacked_images, _ = test_set.image_processing()
-
+    test_stacked_images, _ = test_set.image_processing(mean_face)
     test_weights, recons_test = test_set.weights_calculation(eig_face, mean_face)
 
     # display reconstructed test face
-    # test_set.display_data(test_stacked_images, 'original testfaces')
+    test_set.display_data(test_stacked_images, 'original testfaces')
 
     # display reconstructed test face
-    # test_set.display_data(recons_test, 'reconstructed test data')
+    test_set.display_data(recons_test, 'reconstructed test data')
     test = Test(train_stacked_images, train_weights, test_weights)
     distance_dict = test.man_distance()
     return test,distance_dict

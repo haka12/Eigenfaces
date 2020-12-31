@@ -15,7 +15,7 @@ class Eigen:
         self.norm_x = np.zeros((self.imsize * self.imsize, self.m))
         self.mean_face = np.zeros((self.imsize * self.imsize, 1))
 
-    def image_processing(self):
+    def image_processing(self, *args):
         # Loading images in a list
         images = [img.imread(self.path + os.sep + files) for files in os.listdir(self.path)]
         # plt.imshow(np.array(images[0]))
@@ -30,9 +30,11 @@ class Eigen:
                 break
             stacked_vector = np.column_stack((prev_column, column_vectors[count + 1]))
             prev_column = stacked_vector
-
-        average_face = np.mean(stacked_vector, axis=1)
-        self.mean_face = average_face.reshape(10000, 1)
+        if len(args):
+            self.mean_face = args[0]
+        else:
+            average_face = np.mean(stacked_vector, axis=1)
+            self.mean_face = average_face.reshape(10000, 1)
         # Display Average face
         # plt.imshow(average_face.reshape((100, 100)))
         # plt.show()
