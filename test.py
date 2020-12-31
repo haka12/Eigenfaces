@@ -10,7 +10,18 @@ class Test:
         self.test_weights = test_weights
         self.original_images = train_stacked_images
 
-    def man_distance(self):
-        dict_norm = {i: np.linalg.norm(abs(self.test_weights[i, :] - self.train_weights))
-                     for i in range(self.test_weights.shape[0])}
-        return dict_norm
+    # matching the test weights with train weights with lowest distance
+    def match_index(self, train_label):
+        predicted_label =[]
+        for i in range(self.test_weights.shape[0]):
+            min = self.min_distance(self.train_weights, self.test_weights[i, :])
+            predicted_label.append(train_label[min])
+        return predicted_label
+
+    @staticmethod
+    def min_distance(train_weights, test_weight):
+        distances_dict = {i: np.linalg.norm(abs(test_weight - train_weights[i, :]))
+                          for i in range(train_weights.shape[0])}
+        temp = min(distances_dict.values())
+        k_temp = [key for key in distances_dict if distances_dict[key] == temp]
+        return k_temp[0]

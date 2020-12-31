@@ -15,6 +15,13 @@ class Eigen:
         self.norm_x = np.zeros((self.imsize * self.imsize, self.m))
         self.mean_face = np.zeros((self.imsize * self.imsize, 1))
 
+    def label_extract(self):
+        # Creating a labeled list for all the names
+        name_list = [files for files in os.listdir(self.path)]
+        # replacing numbered names with original names
+        im_label = [nl.replace(nl, l) for nl in name_list for l in labels if l in nl]
+        return im_label
+
     def image_processing(self, *args):
         # Loading images in a list
         images = [img.imread(self.path + os.sep + files) for files in os.listdir(self.path)]
@@ -57,10 +64,10 @@ class Eigen:
         # self.display_data(eig_face, 'Eigenface')
         return eig_value, eig_face
 
-    def weights_calculation(self,eig_face,mean_face):
+    def weights_calculation(self, eig_face, mean_face):
         weights = np.dot(self.norm_x.T, eig_face)
         reconstruction = mean_face + np.dot(eig_face, weights.T)
-        return weights,reconstruction
+        return weights, reconstruction
 
     @staticmethod
     def display_data(data, title):
@@ -73,15 +80,3 @@ class Eigen:
                 k += 1
         plt.title(title, loc='left')
         plt.show()
-
-# a = Eigen('./cropped_image')
-# stacked = a.image_processing()
-# eigen_value, eigen_vectors = a.eigen_value()
-# weights, recons = a.weights_calculation()
-# w, recon = a.test()
-#
-# dict_norm = {i: np.linalg.norm(abs(weights[i, :] - w)) for i in range(145)}
-# temp = min(dict_norm.values())
-# k_temp = [key for key in dict_norm if dict_norm[key] == temp]
-# key = k_temp[0]
-# plt.imshow(stacked[:,key].reshape(100, 100))
